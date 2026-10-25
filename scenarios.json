@@ -1,0 +1,87 @@
+{
+  "zh": [
+    {
+      "id": "factory-tour",
+      "title": "深圳工厂经理",
+      "subtitle": "Factory tour in Shenzhen",
+      "character": "王经理, production manager at a mid-sized electronics factory in Shenzhen. Proud of the lines, practical, a bit busy.",
+      "setting": "He is walking Roman through the SMT lines, assembly and the QC room.",
+      "goal": "Roman asks about production lines, capacity, QC process and defect rates.",
+      "difficulty": 2
+    },
+    {
+      "id": "supplier-moq",
+      "title": "硬件供应商",
+      "subtitle": "Supplier on WeChat voice: price, MOQ, samples",
+      "character": "刘总, sales lead at a motor and actuator supplier in Dongguan. Friendly but a tough negotiator.",
+      "setting": "A WeChat voice call. Roman wants samples and a small first order.",
+      "goal": "Roman negotiates price, MOQ, samples and lead time. Push back: the MOQ is 1000, samples cost money, lead time is 5 weeks.",
+      "difficulty": 3
+    },
+    {
+      "id": "robotics-meetup",
+      "title": "机器人创业公司工程师",
+      "subtitle": "Engineer at a robotics meetup",
+      "character": "小陈, a hardware engineer at a Shenzhen robotics startup building robot arms. Curious and nerdy.",
+      "setting": "Chatting over drinks at a robotics meetup.",
+      "goal": "Roman explains what ThirdAxis does and what he builds; they swap notes on robots and AI.",
+      "difficulty": 2
+    },
+    {
+      "id": "business-dinner",
+      "title": "商务晚宴",
+      "subtitle": "Business dinner: toasts and small talk",
+      "character": "赵总, the host, owner of a manufacturing company. Warm, proud of the local food, likes to toast.",
+      "setting": "A round table at a restaurant, dishes keep arriving, baijiu is poured.",
+      "goal": "Roman handles toasts, small talk about family and travel, compliments the food, and politely refuses more alcohol.",
+      "difficulty": 2
+    },
+    {
+      "id": "taxi-shop",
+      "title": "出租车司机",
+      "subtitle": "Taxi driver: casual, fast, colloquial",
+      "character": "A chatty Beijing taxi driver. Talks fast, uses a few colloquialisms (挺, 甭, 得嘞, 没事儿), opinionated.",
+      "setting": "A 20 minute ride across the city in traffic.",
+      "goal": "Roman gives directions, makes small talk about where he's from and why he's in China.",
+      "difficulty": 3
+    },
+    {
+      "id": "ai-researcher",
+      "title": "AI研究员",
+      "subtitle": "AI researcher: Chinese vs US models",
+      "character": "林博士, an AI researcher at a Beijing lab. Thoughtful, proud of Chinese open models, friendly.",
+      "setting": "Coffee after a conference talk.",
+      "goal": "They compare Chinese and US AI models and labs. Keep it friendly and diplomatic; Roman practises giving careful opinions.",
+      "difficulty": 4
+    }
+  ],
+  "es": [
+    {
+      "id": "friend-catchup",
+      "title": "Ponerse al día",
+      "subtitle": "Catching up with a friend",
+      "character": "Lucía, an old friend Roman hasn't seen in a while. Warm, curious, teases him a bit.",
+      "setting": "Coffee at a café.",
+      "goal": "Catch up on life, work, travel and plans.",
+      "difficulty": 2
+    },
+    {
+      "id": "restaurant",
+      "title": "En el restaurante",
+      "subtitle": "Ordering and small talk",
+      "character": "Diego, a friendly waiter at a busy neighbourhood restaurant.",
+      "setting": "Dinner service. Some dishes are sold out.",
+      "goal": "Roman orders, asks about dishes, handles a sold-out item, makes small talk, asks for the bill.",
+      "difficulty": 1
+    },
+    {
+      "id": "party-job",
+      "title": "En una fiesta",
+      "subtitle": "Explaining your job at a party",
+      "character": "Mariana, a designer Roman just met at a party. Not technical, genuinely interested.",
+      "setting": "A friend's birthday party.",
+      "goal": "Roman explains ThirdAxis, AI agents and his robots to a non-technical person.",
+      "difficulty": 3
+    }
+  ]
+}
