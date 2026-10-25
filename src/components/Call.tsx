@@ -236,6 +236,7 @@ export function Call({
           body: JSON.stringify({
             sdp: pc.localDescription!.sdp,
             lang: setup.lang,
+            level: setup.level,
             mode: setup.mode,
             scenarioId: setup.scenarioId,
             minutes: setup.minutes,

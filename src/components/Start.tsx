@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Config, Lang, Mode, Setup } from "../types";
+import type { Config, Lang, Level, Mode, Setup } from "../types";
 
 const LANGS: { id: Lang; label: string; sub: string }[] = [
   { id: "zh", label: "中文", sub: "Mandarin" },
@@ -12,10 +12,19 @@ const MODES: { id: Exclude<Mode, "review">; label: string }[] = [
   { id: "roleplay", label: "Role-play" },
 ];
 
+const LEVELS: { id: Level; label: string; hint: string }[] = [
+  { id: "beginner", label: "Beginner", hint: "Mostly English. Learn a phrase, repeat it, use it." },
+  { id: "mixed", label: "Mixed", hint: "Mostly in the language, with quick English help when you're stuck." },
+  { id: "immersion", label: "Immersion", hint: "Target language only." },
+];
+
 const LENGTHS = [10, 15, 20];
+
+const savedLevel = (l: Lang): Level => (localStorage.getItem(`level-${l}`) as Level) || (l === "zh" ? "beginner" : "immersion");
 
 export function Start({ config, notice, onStart }: { config: Config; notice?: string; onStart: (s: Setup) => void }) {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("lang") as Lang) || "zh");
+  const [level, setLevel] = useState<Level>(() => savedLevel(lang));
   const [mode, setMode] = useState<Exclude<Mode, "review">>(config.theme.theme ? "theme" : "free");
   const [minutes, setMinutes] = useState(10);
   const scenarios = config.scenarios[lang];
@@ -26,6 +35,12 @@ export function Start({ config, notice, onStart }: { config: Config; notice?: st
     setLang(l);
     localStorage.setItem("lang", l);
     setScenarioId(config.scenarios[l][0]?.id);
+    setLevel(savedLevel(l));
+  };
+
+  const pickLevel = (lv: Level) => {
+    setLevel(lv);
+    localStorage.setItem(`level-${lang}`, lv);
   };
 
   const scenario = scenarios.find((s) => s.id === scenarioId);
@@ -58,6 +73,18 @@ export function Start({ config, notice, onStart }: { config: Config; notice?: st
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="field">
+        <label className="label">Level</label>
+        <div className="seg">
+          {LEVELS.map((lv) => (
+            <button key={lv.id} className={level === lv.id ? "on" : ""} onClick={() => pickLevel(lv.id)}>
+              {lv.label}
+            </button>
+          ))}
+        </div>
+        <p className="hint">{LEVELS.find((lv) => lv.id === level)?.hint}</p>
       </section>
 
       <section className="field">
@@ -116,7 +143,7 @@ export function Start({ config, notice, onStart }: { config: Config; notice?: st
         </div>
       </section>
 
-      <button className="btn primary start" onClick={() => onStart({ lang, mode, minutes, scenarioId, label })}>
+      <button className="btn primary start" onClick={() => onStart({ lang, level, mode, minutes, scenarioId, label })}>
         Start
       </button>
 

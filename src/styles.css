@@ -109,6 +109,7 @@ p { margin: 0; }
 .seg-sub { font-size: 12px; color: var(--faint); }
 
 .field { display: flex; flex-direction: column; }
+.hint { margin-top: 8px; font-size: 13px; color: var(--faint); }
 .panel { margin-top: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); }
 .theme { font-size: 17px; margin-top: 4px; }
 

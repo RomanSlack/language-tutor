@@ -22,28 +22,46 @@ export async function readScenarios(): Promise<Record<Lang, Scenario[]>> {
   return JSON.parse(await fs.readFile(path.join(APP_DIR, "scenarios.json"), "utf8"));
 }
 
-function levelLine(lang: Lang, profile: Profile): string {
-  if (lang === "es") {
-    return "Speak natural Spanish at about B1 level, at a normal but clear pace. Keep your turns short (1 to 3 sentences).";
+export type Level = "beginner" | "mixed" | "immersion";
+
+function levelLines(lang: Lang, level: Level, profile: Profile): string[] {
+  const L = LANG_NAME[lang];
+  const zh = lang === "zh";
+  if (level === "beginner") {
+    return [
+      `He is a beginner. Speak mostly English (about 70% English, 30% ${L}). You are teaching him to say things, not testing him.`,
+      `Teach one short ${L} phrase at a time: say it slowly, give the meaning in English${zh ? " (mention a tricky tone only if there is one)" : ""}, and have him repeat it. Then ask him a question in English that he can answer with it.`,
+      "Keep every turn to 2 or 3 short sentences. Don't narrate what you're doing (no \"say it slowly\", \"one more time\").",
+      "Never assume facts about him (what he studied, where he lives). Ask first, then teach him how to say his real answer.",
+      `Build on the phrases from earlier in the session so they add up. Keep ${L} very simple (${zh ? "HSK 1 to 2" : "A1 to A2"}).`,
+      `If he tries something in ${L} himself, praise it briefly and help him fix it.`,
+    ];
+  }
+  if (level === "mixed") {
+    return [
+      `Speak mostly ${L} at ${zh ? "about HSK 2 to 3" : "about A2 to B1"}, slowly, 1 or 2 short sentences per turn.`,
+      `When he is stuck or doesn't understand, explain briefly in English (one sentence), give him the ${L} words he needs, then go straight back to ${L}.`,
+      `When you use a word he probably doesn't know, give its English meaning once.`,
+    ];
+  }
+  if (!zh) {
+    return [
+      "Speak natural Spanish at about B1 level, at a normal but clear pace. Keep your turns short (1 to 3 sentences).",
+      "Speak only Spanish. Never speak English, even if he does.",
+    ];
   }
   const week = weeksIn();
-  const base =
-    week <= 4
-      ? "about HSK 3"
-      : week <= 8
-        ? "HSK 3, occasionally stretching to HSK 4 words"
-        : "about HSK 4";
+  const base = week <= 4 ? "about HSK 3" : week <= 8 ? "HSK 3, occasionally stretching to HSK 4 words" : "about HSK 4";
   return [
-    `Speak only Mandarin (Simplified Chinese), at ${base}.`,
+    `Speak only Mandarin (Simplified Chinese), at ${base}. Never speak English, even if he does.`,
     "Speak slowly and clearly. Keep every turn to 1 or 2 short sentences.",
     profile.level ? `Latest estimate of his level: ${profile.level}. Pitch yourself just slightly above it.` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  ].filter(Boolean);
 }
 
 export function buildInstructions(o: {
   lang: Lang;
+  level: Level;
   mode: Mode;
   minutes: number;
   theme: { week: number; theme: string | null };
@@ -100,9 +118,10 @@ export function buildInstructions(o: {
       : "American founder of ThirdAxis, an AI company. He builds robots and hardware. He is keeping his Spanish alive.",
     "",
     "# How to speak",
-    levelLine(o.lang, o.profile),
-    `Speak only ${L}. Never speak English, even if he does.`,
-    "Keep him talking: he should speak about 70% of the time. End most turns with a question.",
+    ...levelLines(o.lang, o.level, o.profile),
+    o.level === "beginner"
+      ? `Keep him talking: get him to say as much ${L} as he can. End most turns by asking him to say something.`
+      : "Keep him talking: he should speak about 70% of the time. End most turns with a question.",
     "",
     "# Corrections (important)",
     `When he makes a meaningful mistake, do NOT just say the correct version. First prompt him to fix it himself, for example: ${fixPrompt}, or a one-word hint. If he fixes it, confirm briefly and carry on. If he can't after one try, say the correct version once, have him repeat it, then move on.`,
@@ -110,7 +129,9 @@ export function buildInstructions(o: {
     zh ? "Don't comment on tones unless the meaning was clearly lost." : "",
     "",
     "# English rescue",
-    `If he switches to English, say what he meant in simple ${L} and ask him to repeat it after you. Then continue.`,
+    o.level === "beginner"
+      ? `When he answers in English, show him how to say it in simple ${L} and have him repeat it.`
+      : `If he switches to English, say what he meant in simple ${L} and ask him to repeat it after you. Then continue.`,
     recycle.length ? "" : null,
     recycle.length
       ? `# Recycle these\nFrom his recent mistakes. Work 3 to 5 of them in naturally: use them yourself and ask questions that make him need them.\n${recycle.map((r) => `- ${r}`).join("\n")}`
@@ -125,8 +146,12 @@ export function buildInstructions(o: {
     .join("\n");
 }
 
-export const WRAP_UP = (lang: Lang) =>
-  `Time is up. Wrap up now in ${LANG_NAME[lang]}: one or two short, warm goodbye sentences, mentioning one thing he did well. Don't ask a question.`;
+export const WRAP_UP = (lang: Lang, level: Level) =>
+  level === "beginner"
+    ? `Time is up. Wrap up now: in English, name the ${LANG_NAME[lang]} phrases he learned today, then say goodbye in simple ${LANG_NAME[lang]}. Don't ask a question.`
+    : `Time is up. Wrap up now in ${LANG_NAME[lang]}: one or two short, warm goodbye sentences, mentioning one thing he did well. Don't ask a question.`;
 
-export const HINT = (lang: Lang) =>
-  `He didn't understand your last line. Say it again, much more simply: shorter, easier words, slower. Same meaning. Stay in ${LANG_NAME[lang]}.`;
+export const HINT = (lang: Lang, level: Level) =>
+  level === "immersion"
+    ? `He didn't understand your last line. Say it again, much more simply: shorter, easier words, slower. Same meaning. Stay in ${LANG_NAME[lang]}.`
+    : `He didn't understand your last line. Explain it briefly in English, then say the ${LANG_NAME[lang]} again slowly and simply.`;

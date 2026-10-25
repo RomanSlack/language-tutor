@@ -31,7 +31,7 @@ export function App() {
       const r = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lang: setup.lang, label: setup.label, ...result }),
+        body: JSON.stringify({ lang: setup.lang, level: setup.level, label: setup.label, ...result }),
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error ?? "Analysis failed");
@@ -88,6 +88,7 @@ export function App() {
               name: "call",
               setup: {
                 lang: screen.setup.lang,
+                level: screen.setup.level,
                 mode: "review",
                 minutes: 5,
                 focus: screen.analysis.mistakes.map(({ said, correct }) => ({ said, correct })),

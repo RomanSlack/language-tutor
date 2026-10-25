@@ -1,6 +1,7 @@
 import { ANALYSIS_MODEL, LANG_NAME, type Lang } from "./config.js";
 import { structured } from "./openai.js";
 import type { Profile } from "./profile.js";
+import type { Level } from "./prompt.js";
 
 export type Line = { role: "user" | "assistant"; text: string };
 
@@ -31,12 +32,15 @@ const SCHEMA = obj({
   profileUpdates: obj({ level: str, weakSpots: arr(str), topicsCovered: arr(str) }),
 });
 
-export async function analyze(lang: Lang, lines: Line[], profile: Profile): Promise<Analysis> {
+export async function analyze(lang: Lang, level: Level, lines: Line[], profile: Profile): Promise<Analysis> {
   const L = LANG_NAME[lang];
   const zh = lang === "zh";
   const system = [
     `You review a ${L} speaking-practice session between Roman (the learner) and an AI tutor. Write all explanations in English.`,
     "Roman's lines are automatic speech recognition output, so they may contain words he didn't intend.",
+    level === "beginner"
+      ? `This was a beginner session taught mostly in English. English is expected: don't log English as a mistake. Judge only the ${L} he attempted, and make the cards from the ${L} phrases he was taught.`
+      : "",
     "",
     "Return:",
     "- summary: exactly 2 sentences on how it went and what to work on.",

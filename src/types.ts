@@ -1,5 +1,6 @@
 export type Lang = "zh" | "es";
 export type Mode = "theme" | "free" | "roleplay" | "review";
+export type Level = "beginner" | "mixed" | "immersion";
 
 export type Scenario = { id: string; title: string; subtitle: string; difficulty: number };
 
@@ -17,6 +18,7 @@ export type Config = {
 
 export type Setup = {
   lang: Lang;
+  level: Level;
   mode: Mode;
   minutes: number;
   scenarioId?: string;

@@ -20,7 +20,7 @@ import { analyze, type Line } from "./analyze.js";
 import { appendErrorLog, saveCards, writeSessionRecord } from "./files.js";
 import { structured } from "./openai.js";
 import { readProfile, updateProfile } from "./profile.js";
-import { buildInstructions, HINT, readScenarios, WRAP_UP, type Focus, type Mode } from "./prompt.js";
+import { buildInstructions, HINT, readScenarios, WRAP_UP, type Focus, type Level, type Mode } from "./prompt.js";
 import { currentTheme } from "./theme.js";
 
 if (!OPENAI_API_KEY) {
@@ -55,9 +55,10 @@ app.get("/api/config", async (_req, res) => {
 
 // Builds the session instructions, then forwards the browser's SDP offer to OpenAI.
 app.post("/api/call", async (req, res) => {
-  const { sdp, lang, mode, scenarioId, minutes, focus } = req.body as {
+  const { sdp, lang, level = "immersion", mode, scenarioId, minutes, focus } = req.body as {
     sdp: string;
     lang: Lang;
+    level?: Level;
     mode: Mode;
     scenarioId?: string;
     minutes: number;
@@ -69,9 +70,9 @@ app.post("/api/call", async (req, res) => {
   const scenario = scenarios[lang].find((s) => s.id === scenarioId);
   if (mode === "roleplay" && !scenario) return void res.status(400).json({ error: "Unknown scenario" });
 
-  const instructions = buildInstructions({ lang, mode, minutes, theme, scenario, profile, focus });
+  const instructions = buildInstructions({ lang, level, mode, minutes, theme, scenario, profile, focus });
   if (DEV) {
-    console.log(`\n--- instructions (${LANG_NAME[lang]}, ${mode}) ---\n${instructions}\n---\n`);
+    console.log(`\n--- instructions (${LANG_NAME[lang]}, ${level}, ${mode}) ---\n${instructions}\n---\n`);
     const dir = path.join(DATA_DIR, "tutor-data");
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, `last-instructions-${LANG_SLUG[lang]}.txt`), instructions + "\n");
@@ -91,7 +92,7 @@ app.post("/api/call", async (req, res) => {
         },
         turn_detection: { type: "semantic_vad", eagerness: "low" },
       },
-      output: { voice: VOICE, speed: lang === "zh" ? 0.9 : 1 },
+      output: { voice: VOICE, speed: level === "beginner" ? 0.85 : lang === "zh" ? 0.9 : 1 },
     },
   };
 
@@ -109,7 +110,7 @@ app.post("/api/call", async (req, res) => {
       console.error("Realtime call failed:", answer);
       return void res.status(502).json({ error: `OpenAI: ${answer.slice(0, 300)}` });
     }
-    res.json({ sdp: answer, wrapUp: WRAP_UP(lang), hint: HINT(lang), instructions: DEV ? instructions : undefined });
+    res.json({ sdp: answer, wrapUp: WRAP_UP(lang, level), hint: HINT(lang, level), instructions: DEV ? instructions : undefined });
   } catch (err) {
     console.error(err);
     res.status(502).json({ error: "Could not reach OpenAI" });
@@ -135,8 +136,9 @@ app.post("/api/translate", async (req, res) => {
 
 // Runs after a session: analysis, error log, session file, Anki, profile.
 app.post("/api/analyze", async (req, res) => {
-  const { lang, label, lines, seconds, cost } = req.body as {
+  const { lang, level = "immersion", label, lines, seconds, cost } = req.body as {
     lang: Lang;
+    level?: Level;
     label: string;
     lines: Line[];
     seconds: number;
@@ -154,7 +156,7 @@ app.post("/api/analyze", async (req, res) => {
     const minutes = Math.round((seconds / 60) * 10) / 10;
 
     const profile = await readProfile(lang);
-    const a = await analyze(lang, lines, profile);
+    const a = await analyze(lang, level, lines, profile);
     const [errorLog, sessionFile, cards] = await Promise.all([
       appendErrorLog(lang, date, a),
       writeSessionRecord({ lang, stamp, label, minutes, cost, lines, a }),
